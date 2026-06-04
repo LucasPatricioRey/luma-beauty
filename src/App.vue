@@ -1,7 +1,11 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import AppFooter from './components/AppFooter.vue'
+import AppNavbar from './components/AppNavbar.vue'
 </script>
 
 <template>
-  <HelloWorld />
+  <div>
+    <AppNavbar />
+    <AppFooter />
+  </div>
 </template>
