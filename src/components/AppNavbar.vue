@@ -1,14 +1,13 @@
 <template>
   <header>
-    <a href="#inicio">
-      <span>Luma Beauty</span>
-    </a>
+    <RouterLink to="/">Luma Beauty</RouterLink>
 
-    <nav  aria-label="Navegación principal">
-      <a href="#inicio">Inicio</a>
-      <a href="#productos">Productos</a>
-      <a href="#carrito">Carrito</a>
-      <a href="#login">Ingresar</a>
+    <nav>
+      <RouterLink to="/">Inicio</RouterLink>
+      <RouterLink to="/productos">Productos</RouterLink>
+      <RouterLink to="/carrito">Carrito</RouterLink>
+      <RouterLink to="/login">Ingresar</RouterLink>
+      <RouterLink to="/register">Registro</RouterLink>
     </nav>
   </header>
 </template>
