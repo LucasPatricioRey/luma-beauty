@@ -1,11 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomeView from '../views/HomeView.vue'
-import ProductsView from '../views/ProductsView.vue'
+import AdminProductsView from '../views/AdminProductsView.vue'
 import CartView from '../views/CartView.vue'
+import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import OrdersView from '../views/OrdersView.vue'
+import ProductDetailView from '../views/ProductDetailView.vue'
+import ProductsView from '../views/ProductsView.vue'
+import RegisterView from '../views/RegisterView.vue'
 
 const routes = [
   {
@@ -17,6 +20,11 @@ const routes = [
     path: '/productos',
     name: 'products',
     component: ProductsView,
+  },
+  {
+    path: '/productos/:id',
+    name: 'product-detail',
+    component: ProductDetailView,
   },
   {
     path: '/carrito',
@@ -32,6 +40,16 @@ const routes = [
     path: '/register',
     name: 'register',
     component: RegisterView,
+  },
+  {
+    path: '/mis-compras',
+    name: 'orders',
+    component: OrdersView,
+  },
+  {
+    path: '/admin',
+    name: 'admin-products',
+    component: AdminProductsView,
   },
   {
     path: '/:pathMatch(.*)*',

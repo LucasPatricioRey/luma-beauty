@@ -1,0 +1,135 @@
+.page {
+  width: min(1120px, 92%);
+  min-height: calc(100vh - 230px);
+  margin: 0 auto;
+  padding: 4rem 0 5rem;
+}
+
+.page__header {
+  max-width: 760px;
+  margin-bottom: 2rem;
+}
+
+.page__eyebrow {
+  margin: 0 0 0.75rem;
+  color: #b76e79;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.page h1 {
+  margin: 0 0 1rem;
+  color: #2b2024;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  line-height: 1;
+}
+
+.page h2 {
+  margin: 0 0 1rem;
+  color: #2b2024;
+}
+
+.page__description {
+  margin: 0;
+  color: #5f4b52;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.page-card {
+  border: 1px solid rgba(183, 110, 121, 0.25);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 18px 45px rgba(79, 45, 54, 0.08);
+}
+
+.empty-state {
+  border: 1px dashed rgba(183, 110, 121, 0.45);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.55);
+}
+
+.empty-state p {
+  margin: 0 0 1.5rem;
+  color: #5f4b52;
+  line-height: 1.7;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.9rem 1.35rem;
+  background-color: #2b2024;
+  color: #fff7f9;
+  font-weight: 800;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.button--secondary {
+  border: 1px solid #b76e79;
+  background-color: transparent;
+  color: #7d4b55;
+}
+
+.form-card {
+  max-width: 520px;
+}
+
+.form-group {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  color: #2b2024;
+  font-weight: 700;
+}
+
+.form-group input {
+  width: 100%;
+  border: 1px solid rgba(183, 110, 121, 0.35);
+  border-radius: 999px;
+  padding: 0.9rem 1rem;
+  background-color: #fff;
+  color: #2b2024;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 3rem 0 4rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

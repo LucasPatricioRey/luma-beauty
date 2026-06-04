@@ -1,20 +1,20 @@
 <template>
   <section class="page">
     <div class="page__header">
-      <p class="page__eyebrow">Carrito</p>
+      <p class="page__eyebrow">Mis compras</p>
 
-      <h1>Tu carrito</h1>
+      <h1>Historial de compras</h1>
 
       <p class="page__description">
-        Revisá los productos seleccionados antes de finalizar la compra.
+        Consultá las compras realizadas con tu cuenta en Luma Beauty.
       </p>
     </div>
 
     <div class="empty-state">
-      <p>Tu carrito está vacío.</p>
+      <p>No hay compras registradas.</p>
 
       <RouterLink class="button" to="/productos">
-        Ver productos
+        Explorar productos
       </RouterLink>
     </div>
   </section>
