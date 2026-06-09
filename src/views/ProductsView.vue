@@ -1,21 +1,69 @@
+<script setup>
+import { onMounted, ref } from 'vue'
+import { supabase } from '../services/supabase'
+
+const products = ref([])
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+const loadProducts = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  const { data, error } = await supabase
+    .from('products')
+    .select('id, name, description, price, stock, image_url, category_id')
+    .order('id', { ascending: true })
+
+  if (error) {
+    console.error('Error cargando productos:', error)
+    errorMessage.value = error.message
+  } else {
+    products.value = data
+  }
+
+  isLoading.value = false
+}
+
+onMounted(() => {
+  loadProducts()
+})
+</script>
+
 <template>
   <section class="page">
-    <div class="page__header">
-      <p class="page__eyebrow">Catálogo</p>
+    <h1>Productos</h1>
 
-      <h1>Productos</h1>
+    <p>
+      Explorá los productos disponibles en Luma Beauty.
+    </p>
 
-      <p class="page__description">
-        Explorá la selección de productos de maquillaje disponibles en Luma Beauty.
-      </p>
+    <p v-if="isLoading">
+      Cargando productos...
+    </p>
+
+    <p v-else-if="errorMessage">
+      Error: {{ errorMessage }}
+    </p>
+
+    <div v-else-if="products.length > 0">
+      <article v-for="product in products" :key="product.id">
+        <h2>{{ product.name }}</h2>
+
+        <p>{{ product.description }}</p>
+
+        <p>Precio: ${{ product.price }}</p>
+
+        <p>Stock: {{ product.stock }}</p>
+
+        <RouterLink :to="`/productos/${product.id}`">
+          Ver detalle
+        </RouterLink>
+      </article>
     </div>
 
-    <div class="empty-state">
-      <p>No hay productos disponibles en este momento.</p>
-
-      <RouterLink class="button" to="/">
-        Volver al inicio
-      </RouterLink>
-    </div>
+    <p v-else>
+      No hay productos cargados.
+    </p>
   </section>
 </template>
