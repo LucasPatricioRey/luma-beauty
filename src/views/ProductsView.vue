@@ -48,6 +48,10 @@ onMounted(() => {
 
     <div v-else-if="products.length > 0">
       <article v-for="product in products" :key="product.id">
+
+      <img :src="product.image_url" :alt="product.name" width="200">
+  
+
         <h2>{{ product.name }}</h2>
 
         <p>{{ product.description }}</p>
