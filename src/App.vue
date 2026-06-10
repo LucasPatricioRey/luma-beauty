@@ -4,12 +4,15 @@ import { onMounted } from 'vue'
 import AppFooter from './components/AppFooter.vue'
 import AppNavbar from './components/AppNavbar.vue'
 
+import { useAuthStore } from './stores/authStore'
 import { useCartStore } from './stores/cartStore'
 
+const authStore = useAuthStore()
 const cartStore = useCartStore()
 
 onMounted(() => {
   cartStore.loadCart()
+  authStore.initAuth()
 })
 </script>
 

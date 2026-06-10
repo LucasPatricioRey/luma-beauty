@@ -121,7 +121,7 @@ onMounted(() => {
       </button>
     </form>
 
-    <p v-if="isLoaidng">
+    <p v-if="isLoading">
       Cargando productos...
     </p>
 
