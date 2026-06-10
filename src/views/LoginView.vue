@@ -9,18 +9,14 @@ const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
-const successMessage = ref('')
 
 const handleLogin = async () => {
-  successMessage.value = ''
-
   const { error } = await authStore.login({
     email: email.value,
     password: password.value,
   })
 
   if (!error) {
-    successMessage.value = 'Inicio de sesión correcto.'
     router.push('/productos')
   }
 }
@@ -65,9 +61,6 @@ const handleLogin = async () => {
         {{ authStore.errorMessage }}
       </p>
 
-      <p v-if="successMessage">
-        {{ successMessage }}
-      </p>
 
       <div class="form-actions">
         <button class="button" type="submit" :disabled="authStore.isLoading">
