@@ -3,6 +3,13 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { supabase } from '../services/supabase'
+import { useCartStore } from '../stores/cartStore'
+
+const cartStore = useCartStore()
+
+const addToCart = () => {
+  cartStore.addProduct(product.value)
+}
 
 const route = useRoute()
 
@@ -45,12 +52,7 @@ onMounted(() => {
     </p>
 
     <article v-else-if="product">
-      <img
-        v-if="product.image_url"
-        :src="product.image_url"
-        :alt="product.name"
-        width="300"
-      >
+      <img v-if="product.image_url" :src="product.image_url" :alt="product.name" width="300">
 
       <h1>{{ product.name }}</h1>
 
@@ -63,6 +65,11 @@ onMounted(() => {
       <p>
         Stock: {{ product.stock }}
       </p>
+
+      <button @click="addToCart">
+        Agregar al carrito
+      </button>
+      
     </article>
   </section>
 </template>
