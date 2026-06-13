@@ -27,7 +27,9 @@ const handleLogout = async () => {
     <template v-if="authStore.isLoggedIn">
       <RouterLink to="/mis-compras">Mis compras</RouterLink>
 
-      <RouterLink to="/admin">Admin</RouterLink>
+      <RouterLink v-if="authStore.isAdmin" to="/admin">
+        Admin
+      </RouterLink>
 
       <span>{{ authStore.userEmail }}</span>
 

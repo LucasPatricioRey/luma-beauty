@@ -60,6 +60,7 @@ const routes = [
     component: AdminProductsView,
     meta: {
       requiresAuth: true,
+      requiresAdmin: true,
     },
   },
   {
@@ -81,16 +82,32 @@ router.beforeEach(async (to) => {
 
   const { data } = await supabase.auth.getUser()
 
-  if (data.user) {
+  if (!data.user) {
+    return {
+      name: 'login',
+      query: {
+        redirect: to.fullPath,
+      },
+    }
+  }
+
+  if (!to.meta.requiresAdmin) {
     return true
   }
 
-  return {
-    name: 'login',
-    query: {
-      redirect: to.fullPath,
-    },
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user.id)
+    .single()
+
+  if (error || profile?.role !== 'admin') {
+    return {
+      name: 'products',
+    }
   }
+
+  return true
 })
 
 export default router

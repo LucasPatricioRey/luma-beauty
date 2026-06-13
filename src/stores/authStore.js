@@ -4,6 +4,7 @@ import { supabase } from '../services/supabase'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
+    profile: null,
     isLoading: false,
     errorMessage: '',
   }),
@@ -16,6 +17,14 @@ export const useAuthStore = defineStore('auth', {
     userEmail: (state) => {
       return state.user?.email || ''
     },
+
+    userFullName: (state) => {
+      return state.profile?.full_name || ''
+    },
+
+    isAdmin: (state) => {
+      return state.profile?.role === 'admin'
+    },
   },
 
   actions: {
@@ -24,9 +33,39 @@ export const useAuthStore = defineStore('auth', {
 
       this.user = data.user
 
-      supabase.auth.onAuthStateChange((_event, session) => {
+      if (this.user) {
+        await this.loadProfile()
+      }
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
         this.user = session?.user || null
+
+        if (this.user) {
+          await this.loadProfile()
+        } else {
+          this.profile = null
+        }
       })
+    },
+
+    async loadProfile() {
+      if (!this.user) {
+        this.profile = null
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .eq('id', this.user.id)
+        .single()
+
+      if (error) {
+        console.error('Error cargando perfil:', error)
+        this.profile = null
+      } else {
+        this.profile = data
+      }
     },
 
     async register({ fullName, email, password }) {
@@ -47,6 +86,10 @@ export const useAuthStore = defineStore('auth', {
         this.errorMessage = error.message
       } else {
         this.user = data.session?.user || null
+
+        if (this.user) {
+          await this.loadProfile()
+        }
       }
 
       this.isLoading = false
@@ -67,6 +110,7 @@ export const useAuthStore = defineStore('auth', {
         this.errorMessage = error.message
       } else {
         this.user = data.user
+        await this.loadProfile()
       }
 
       this.isLoading = false
@@ -78,6 +122,7 @@ export const useAuthStore = defineStore('auth', {
       await supabase.auth.signOut()
 
       this.user = null
+      this.profile = null
     },
   },
 })
