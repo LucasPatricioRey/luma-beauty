@@ -10,6 +10,7 @@ const isSaving = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const editingProductId = ref(null)
+const selectedImage = ref(null)
 
 const form = reactive({
   name: '',
@@ -57,6 +58,7 @@ const loadCategories = async () => {
 
 const resetForm = () => {
   editingProductId.value = null
+  selectedImage.value = null
 
   form.name = ''
   form.description = ''
@@ -64,10 +66,17 @@ const resetForm = () => {
   form.stock = 0
   form.image_url = ''
   form.category_id = ''
+
+  const imageInput = document.getElementById('product-image-file')
+
+  if (imageInput) {
+    imageInput.value = ''
+  }
 }
 
 const startEdit = (product) => {
   editingProductId.value = product.id
+  selectedImage.value = null
 
   form.name = product.name
   form.description = product.description
@@ -75,6 +84,12 @@ const startEdit = (product) => {
   form.stock = Number(product.stock)
   form.image_url = product.image_url || ''
   form.category_id = product.category_id ? String(product.category_id) : ''
+
+  const imageInput = document.getElementById('product-image-file')
+
+  if (imageInput) {
+    imageInput.value = ''
+  }
 }
 
 const getCategoryName = (categoryId) => {
@@ -83,6 +98,72 @@ const getCategoryName = (categoryId) => {
   )
 
   return category ? category.name : 'Sin categoría'
+}
+
+const handleImageChange = (event) => {
+  errorMessage.value = ''
+
+  const file = event.target.files[0]
+
+  if (!file) {
+    selectedImage.value = null
+    return
+  }
+
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ]
+
+  const maxSize = 5 * 1024 * 1024
+
+  if (!allowedTypes.includes(file.type)) {
+    selectedImage.value = null
+    errorMessage.value = 'La imagen debe ser JPG, PNG o WEBP.'
+    return
+  }
+
+  if (file.size > maxSize) {
+    selectedImage.value = null
+    errorMessage.value = 'La imagen no puede superar los 5 MB.'
+    return
+  }
+
+  selectedImage.value = file
+}
+
+const uploadImage = async () => {
+  if (!selectedImage.value) {
+    return form.image_url.trim() || null
+  }
+
+  const file = selectedImage.value
+  const extension = file.name.split('.').pop()
+  const cleanName = file.name
+    .toLowerCase()
+    .replaceAll(' ', '-')
+    .replaceAll('_', '-')
+
+  const filePath = `products/${Date.now()}-${cleanName}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('product-images')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
+    })
+
+  if (uploadError) {
+    throw uploadError
+  }
+
+  const { data } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
 }
 
 const saveProduct = async () => {
@@ -106,38 +187,45 @@ const saveProduct = async () => {
 
   isSaving.value = true
 
-  const productData = {
-    name: form.name.trim(),
-    description: form.description.trim(),
-    price: Number(form.price),
-    stock: Number(form.stock),
-    image_url: form.image_url.trim() || null,
-    category_id: form.category_id ? Number(form.category_id) : null,
-  }
+  try {
+    const imageUrl = await uploadImage()
 
-  let response
+    const productData = {
+      name: form.name.trim(),
+      description: form.description.trim(),
+      price: Number(form.price),
+      stock: Number(form.stock),
+      image_url: imageUrl,
+      category_id: form.category_id ? Number(form.category_id) : null,
+    }
 
-  if (editingProductId.value) {
-    response = await supabase
-      .from('products')
-      .update(productData)
-      .eq('id', editingProductId.value)
-  } else {
-    response = await supabase
-      .from('products')
-      .insert(productData)
-  }
+    let response
 
-  if (response.error) {
-    console.error('Error guardando producto:', response.error)
-    errorMessage.value = response.error.message
-  } else {
-    successMessage.value = editingProductId.value
-      ? 'Producto actualizado correctamente.'
-      : 'Producto creado correctamente.'
+    if (editingProductId.value) {
+      response = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', editingProductId.value)
+    } else {
+      response = await supabase
+        .from('products')
+        .insert(productData)
+    }
 
-    resetForm()
-    await loadProducts()
+    if (response.error) {
+      console.error('Error guardando producto:', response.error)
+      errorMessage.value = response.error.message
+    } else {
+      successMessage.value = editingProductId.value
+        ? 'Producto actualizado correctamente.'
+        : 'Producto creado correctamente.'
+
+      resetForm()
+      await loadProducts()
+    }
+  } catch (error) {
+    console.error('Error subiendo imagen:', error)
+    errorMessage.value = error.message
   }
 
   isSaving.value = false
@@ -246,6 +334,16 @@ onMounted(async () => {
       </div>
 
       <div>
+        <label for="product-image-file">Imagen del producto</label>
+        <input
+          id="product-image-file"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          @change="handleImageChange"
+        >
+      </div>
+
+      <div>
         <label for="product-image">Imagen URL</label>
         <input
           id="product-image"
@@ -254,6 +352,11 @@ onMounted(async () => {
           placeholder="https://..."
         >
       </div>
+
+      <p>
+        Si subís una imagen desde el archivo, se usará esa imagen. Si no subís archivo,
+        se usará la URL escrita en el campo Imagen URL.
+      </p>
 
       <div>
         <label for="product-category">Categoría</label>
