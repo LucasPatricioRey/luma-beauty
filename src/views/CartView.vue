@@ -36,10 +36,7 @@ const handleClearCart = () => {
 const handleCheckout = async () => {
   cartMessage.value = ''
 
-  const { error } = await orderStore.createOrder(
-    cartStore.items,
-    cartStore.totalPrice
-  )
+  const { error } = await orderStore.createOrder(cartStore.items)
 
   if (!error) {
     cartStore.clearCart()
@@ -132,7 +129,7 @@ onMounted(() => {
       </p>
 
       <p>
-        Total: ${{ cartStore.totalPrice }}
+        Total estimado: ${{ cartStore.totalPrice }}
       </p>
 
       <button

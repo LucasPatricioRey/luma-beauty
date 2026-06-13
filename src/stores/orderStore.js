@@ -10,7 +10,7 @@ export const useOrderStore = defineStore('orders', {
   }),
 
   actions: {
-    async createOrder(cartItems, total) {
+    async createOrder(cartItems) {
       this.isLoading = true
       this.errorMessage = ''
       this.successMessage = ''
@@ -25,63 +25,26 @@ export const useOrderStore = defineStore('orders', {
         }
       }
 
-      const { data: userData, error: userError } = await supabase.auth.getUser()
+      const checkoutItems = cartItems.map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+      }))
 
-      if (userError || !userData.user) {
-        this.errorMessage = 'Necesitás iniciar sesión para finalizar la compra.'
+      const { data, error } = await supabase.rpc(
+        'create_order_with_stock',
+        {
+          cart_items: checkoutItems,
+        }
+      )
+
+      if (error) {
+        console.error('Error finalizando compra:', error)
+        this.errorMessage = error.message
         this.isLoading = false
 
         return {
           data: null,
-          error: userError || new Error('Usuario no logueado.'),
-        }
-      }
-
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: userData.user.id,
-          total: Number(total),
-          status: 'completed',
-        })
-        .select('id')
-        .single()
-
-      if (orderError) {
-        this.errorMessage = orderError.message
-        this.isLoading = false
-
-        return {
-          data: null,
-          error: orderError,
-        }
-      }
-
-      const orderItems = cartItems.map((item) => {
-        const unitPrice = Number(item.price)
-        const quantity = Number(item.quantity)
-
-        return {
-          order_id: order.id,
-          product_id: item.id,
-          product_name: item.name,
-          quantity,
-          unit_price: unitPrice,
-          subtotal: unitPrice * quantity,
-        }
-      })
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems)
-
-      if (itemsError) {
-        this.errorMessage = itemsError.message
-        this.isLoading = false
-
-        return {
-          data: null,
-          error: itemsError,
+          error,
         }
       }
 
@@ -89,7 +52,7 @@ export const useOrderStore = defineStore('orders', {
       this.isLoading = false
 
       return {
-        data: order,
+        data,
         error: null,
       }
     },
