@@ -3,6 +3,7 @@ import { supabase } from '../services/supabase'
 
 export const useOrderStore = defineStore('orders', {
   state: () => ({
+    orders: [],
     isLoading: false,
     errorMessage: '',
     successMessage: '',
@@ -91,6 +92,47 @@ export const useOrderStore = defineStore('orders', {
         data: order,
         error: null,
       }
+    },
+
+    async loadOrders() {
+      this.isLoading = true
+      this.errorMessage = ''
+
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !userData.user) {
+        this.orders = []
+        this.errorMessage = 'Necesitás iniciar sesión para ver tus compras.'
+        this.isLoading = false
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          total,
+          status,
+          created_at,
+          order_items (
+            id,
+            product_name,
+            quantity,
+            unit_price,
+            subtotal
+          )
+        `)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error cargando compras:', error)
+        this.errorMessage = error.message
+        this.orders = []
+      } else {
+        this.orders = data || []
+      }
+
+      this.isLoading = false
     },
 
     clearMessages() {
