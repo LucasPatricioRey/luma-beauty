@@ -1,12 +1,39 @@
 <script setup>
+import { onMounted } from 'vue'
+
 import { useCartStore } from '../stores/cartStore'
+import { useOrderStore } from '../stores/orderStore'
 
 const cartStore = useCartStore()
+const orderStore = useOrderStore()
+
+const handleCheckout = async () => {
+  const { error } = await orderStore.createOrder(
+    cartStore.items,
+    cartStore.totalPrice
+  )
+
+  if (!error) {
+    cartStore.clearCart()
+  }
+}
+
+onMounted(() => {
+  orderStore.clearMessages()
+})
 </script>
 
 <template>
   <section>
     <h1>Carrito</h1>
+
+    <p v-if="orderStore.successMessage">
+      {{ orderStore.successMessage }}
+    </p>
+
+    <p v-if="orderStore.errorMessage">
+      Error: {{ orderStore.errorMessage }}
+    </p>
 
     <p v-if="cartStore.items.length === 0">
       El carrito está vacío.
@@ -24,10 +51,15 @@ const cartStore = useCartStore()
         </p>
 
         <p>
-          Precio: ${{ item.price }}
+          Precio unitario: ${{ item.price }}
+        </p>
+
+        <p>
+          Subtotal: ${{ Number(item.price) * item.quantity }}
         </p>
 
         <button
+          type="button"
           @click="cartStore.removeProduct(item.id)"
         >
           Eliminar
@@ -45,9 +77,18 @@ const cartStore = useCartStore()
       </p>
 
       <button
+        type="button"
         @click="cartStore.clearCart()"
       >
         Vaciar carrito
+      </button>
+
+      <button
+        type="button"
+        :disabled="orderStore.isLoading"
+        @click="handleCheckout"
+      >
+        {{ orderStore.isLoading ? 'Registrando compra...' : 'Finalizar compra' }}
       </button>
     </div>
   </section>
