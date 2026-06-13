@@ -1,25 +1,26 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { supabase } from '../services/supabase'
 import { useCartStore } from '../stores/cartStore'
 
-const cartStore = useCartStore()
-
-const addToCart = () => {
-  cartStore.addProduct(product.value)
-}
-
 const route = useRoute()
+const cartStore = useCartStore()
 
 const product = ref(null)
 const isLoading = ref(false)
 const errorMessage = ref('')
+const cartMessage = ref('')
+
+const isOutOfStock = computed(() => {
+  return !product.value || Number(product.value.stock) <= 0
+})
 
 const loadProduct = async () => {
   isLoading.value = true
   errorMessage.value = ''
+  cartMessage.value = ''
 
   const { data, error } = await supabase
     .from('products')
@@ -36,11 +37,24 @@ const loadProduct = async () => {
   isLoading.value = false
 }
 
+const addToCart = () => {
+  cartMessage.value = ''
+
+  if (!product.value) {
+    cartMessage.value = 'No se pudo agregar el producto.'
+    return
+  }
+
+  const result = cartStore.addProduct(product.value)
+
+  cartMessage.value = result.message
+}
+
 onMounted(() => {
   loadProduct()
 })
 </script>
-<!-- NOTA: creo que hay que hacer un componente xq repetirmos html aca y en productView -->
+
 <template>
   <section>
     <p v-if="isLoading">
@@ -52,7 +66,12 @@ onMounted(() => {
     </p>
 
     <article v-else-if="product">
-      <img v-if="product.image_url" :src="product.image_url" :alt="product.name" width="300">
+      <img
+        v-if="product.image_url"
+        :src="product.image_url"
+        :alt="product.name"
+        width="300"
+      >
 
       <h1>{{ product.name }}</h1>
 
@@ -66,10 +85,21 @@ onMounted(() => {
         Stock: {{ product.stock }}
       </p>
 
-      <button @click="addToCart">
-        Agregar al carrito
+      <p v-if="cartMessage">
+        {{ cartMessage }}
+      </p>
+
+      <button
+        type="button"
+        :disabled="isOutOfStock"
+        @click="addToCart"
+      >
+        {{ isOutOfStock ? 'Sin stock' : 'Agregar al carrito' }}
       </button>
-      
+
+      <RouterLink to="/productos">
+        Volver a productos
+      </RouterLink>
     </article>
   </section>
 </template>

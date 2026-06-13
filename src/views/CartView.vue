@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { useCartStore } from '../stores/cartStore'
 import { useOrderStore } from '../stores/orderStore'
@@ -7,7 +7,35 @@ import { useOrderStore } from '../stores/orderStore'
 const cartStore = useCartStore()
 const orderStore = useOrderStore()
 
+const cartMessage = ref('')
+
+const handleIncrease = (productId) => {
+  const result = cartStore.increaseQuantity(productId)
+
+  cartMessage.value = result.message
+}
+
+const handleDecrease = (productId) => {
+  const result = cartStore.decreaseQuantity(productId)
+
+  cartMessage.value = result.message
+}
+
+const handleRemove = (productId) => {
+  const result = cartStore.removeProduct(productId)
+
+  cartMessage.value = result.message
+}
+
+const handleClearCart = () => {
+  const result = cartStore.clearCart()
+
+  cartMessage.value = result.message
+}
+
 const handleCheckout = async () => {
+  cartMessage.value = ''
+
   const { error } = await orderStore.createOrder(
     cartStore.items,
     cartStore.totalPrice
@@ -20,6 +48,7 @@ const handleCheckout = async () => {
 
 onMounted(() => {
   orderStore.clearMessages()
+  cartMessage.value = ''
 })
 </script>
 
@@ -35,6 +64,10 @@ onMounted(() => {
       Error: {{ orderStore.errorMessage }}
     </p>
 
+    <p v-if="cartMessage">
+      {{ cartMessage }}
+    </p>
+
     <p v-if="cartStore.items.length === 0">
       El carrito está vacío.
     </p>
@@ -44,11 +77,37 @@ onMounted(() => {
         v-for="item in cartStore.items"
         :key="item.id"
       >
+        <img
+          v-if="item.image_url"
+          :src="item.image_url"
+          :alt="item.name"
+          width="120"
+        >
+
         <h2>{{ item.name }}</h2>
+
+        <p>
+          Stock disponible: {{ item.stock }}
+        </p>
 
         <p>
           Cantidad: {{ item.quantity }}
         </p>
+
+        <button
+          type="button"
+          @click="handleDecrease(item.id)"
+        >
+          -
+        </button>
+
+        <button
+          type="button"
+          :disabled="item.quantity >= item.stock"
+          @click="handleIncrease(item.id)"
+        >
+          +
+        </button>
 
         <p>
           Precio unitario: ${{ item.price }}
@@ -60,7 +119,7 @@ onMounted(() => {
 
         <button
           type="button"
-          @click="cartStore.removeProduct(item.id)"
+          @click="handleRemove(item.id)"
         >
           Eliminar
         </button>
@@ -78,7 +137,7 @@ onMounted(() => {
 
       <button
         type="button"
-        @click="cartStore.clearCart()"
+        @click="handleClearCart"
       >
         Vaciar carrito
       </button>
