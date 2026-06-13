@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useAuthStore } from '../stores/authStore'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -17,7 +18,12 @@ const handleLogin = async () => {
   })
 
   if (!error) {
-    router.push('/productos')
+    const redirectPath =
+      typeof route.query.redirect === 'string'
+        ? route.query.redirect
+        : '/productos'
+
+    router.push(redirectPath)
   }
 }
 </script>
@@ -60,7 +66,6 @@ const handleLogin = async () => {
       <p v-if="authStore.errorMessage">
         {{ authStore.errorMessage }}
       </p>
-
 
       <div class="form-actions">
         <button class="button" type="submit" :disabled="authStore.isLoading">

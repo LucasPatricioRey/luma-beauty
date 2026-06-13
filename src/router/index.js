@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import { supabase } from '../services/supabase'
+
 import AdminProductsView from '../views/AdminProductsView.vue'
 import CartView from '../views/CartView.vue'
 import HomeView from '../views/HomeView.vue'
@@ -30,6 +32,9 @@ const routes = [
     path: '/carrito',
     name: 'cart',
     component: CartView,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/login',
@@ -45,11 +50,17 @@ const routes = [
     path: '/mis-compras',
     name: 'orders',
     component: OrdersView,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/admin',
     name: 'admin-products',
     component: AdminProductsView,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/:pathMatch(.*)*',
@@ -61,6 +72,25 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+router.beforeEach(async (to) => {
+  if (!to.meta.requiresAuth) {
+    return true
+  }
+
+  const { data } = await supabase.auth.getUser()
+
+  if (data.user) {
+    return true
+  }
+
+  return {
+    name: 'login',
+    query: {
+      redirect: to.fullPath,
+    },
+  }
 })
 
 export default router

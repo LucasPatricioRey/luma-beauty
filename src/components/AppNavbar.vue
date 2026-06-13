@@ -1,12 +1,16 @@
 <script setup>
+import { useRouter } from 'vue-router'
+
 import { useAuthStore } from '../stores/authStore'
 import { useCartStore } from '../stores/cartStore'
 
+const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 
 const handleLogout = async () => {
   await authStore.logout()
+  router.push('/login')
 }
 </script>
 
@@ -20,11 +24,11 @@ const handleLogout = async () => {
       Carrito ({{ cartStore.totalItems }})
     </RouterLink>
 
-    <RouterLink to="/mis-compras">Mis compras</RouterLink>
-
-    <RouterLink to="/admin">Admin</RouterLink>
-
     <template v-if="authStore.isLoggedIn">
+      <RouterLink to="/mis-compras">Mis compras</RouterLink>
+
+      <RouterLink to="/admin">Admin</RouterLink>
+
       <span>{{ authStore.userEmail }}</span>
 
       <button type="button" @click="handleLogout">
