@@ -15,33 +15,40 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <nav class="navbar__links" aria-label="Navegación principal">
-    <RouterLink to="/">Inicio</RouterLink>
-
-    <RouterLink to="/productos">Productos</RouterLink>
-
-    <RouterLink to="/carrito">
-      Carrito ({{ cartStore.totalItems }})
+  <header class="navbar">
+    <RouterLink class="navbar__brand" to="/">
+      <span class="navbar__logo">LB</span>
+      <span>Luma Beauty</span>
     </RouterLink>
 
-    <template v-if="authStore.isLoggedIn">
-      <RouterLink to="/mis-compras">Mis compras</RouterLink>
+    <nav class="navbar__links" aria-label="Navegación principal">
+      <RouterLink to="/">Inicio</RouterLink>
 
-      <RouterLink v-if="authStore.isAdmin" to="/admin">
-        Admin
+      <RouterLink to="/productos">Productos</RouterLink>
+
+      <RouterLink to="/carrito">
+        Carrito ({{ cartStore.totalItems }})
       </RouterLink>
 
-      <span>{{ authStore.userEmail }}</span>
+      <template v-if="authStore.isLoggedIn">
+        <RouterLink to="/mis-compras">Mis compras</RouterLink>
 
-      <button type="button" @click="handleLogout">
-        Cerrar sesión
-      </button>
-    </template>
+        <RouterLink v-if="authStore.isAdmin" to="/admin">
+          Admin
+        </RouterLink>
 
-    <template v-else>
-      <RouterLink to="/login">Ingresar</RouterLink>
+        <span>{{ authStore.userEmail }}</span>
 
-      <RouterLink to="/register">Registro</RouterLink>
-    </template>
-  </nav>
+        <button type="button" @click="handleLogout">
+          Cerrar sesión
+        </button>
+      </template>
+
+      <template v-else>
+        <RouterLink to="/login">Ingresar</RouterLink>
+
+        <RouterLink to="/register">Registro</RouterLink>
+      </template>
+    </nav>
+  </header>
 </template>

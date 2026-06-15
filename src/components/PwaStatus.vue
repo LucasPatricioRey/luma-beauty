@@ -14,7 +14,7 @@ const closeMessage = () => {
 </script>
 
 <template>
-  <div v-if="offlineReady || needRefresh" role="alert">
+  <div v-if="offlineReady || needRefresh" class="pwa-status" role="alert">
     <p v-if="offlineReady">
       Luma Beauty está lista para usarse sin conexión.
     </p>
