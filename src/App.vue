@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 
 import AppFooter from './components/AppFooter.vue'
 import AppNavbar from './components/AppNavbar.vue'
+import PwaStatus from './components/PwaStatus.vue'
 
 import { useAuthStore } from './stores/authStore'
 import { useCartStore } from './stores/cartStore'
@@ -22,4 +23,6 @@ onMounted(() => {
   <RouterView />
 
   <AppFooter />
+
+  <PwaStatus />
 </template>
